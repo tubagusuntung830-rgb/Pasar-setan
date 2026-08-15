@@ -1,0 +1,165 @@
+local Tab1 = Window:NewTab("Auto Materials")
+local Section1 = Tab1:NewSection("Pilih Bahan Spesifik")
+
+local function collectItem(itemName)
+    pcall(function()
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("ProximityPrompt") and v.Parent and v.Parent.Name:lower():find(itemName:lower()) then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Parent.CFrame
+                task.wait(0.05)
+                fireproximityprompt(v)
+                break
+            end
+        end
+    end)
+end
+
+_G.FarmMelati = false
+Section1:NewToggle("Auto Farm Melati", "Teleport & ambil Bunga Melati", function(state)
+    _G.FarmMelati = state
+    while _G.FarmMelati do task.wait(0.1) collectItem("Melati") end
+end)
+
+_G.FarmJamur = false
+Section1:NewToggle("Auto Farm Jamur", "Teleport & ambil Jamur", function(state)
+    _G.FarmJamur = state
+    while _G.FarmJamur do task.wait(0.1) collectItem("Jamur") end
+end)
+
+_G.FarmDupa = false
+Section1:NewToggle("Auto Farm Dupa", "Teleport & ambil Dupa", function(state)
+    _G.FarmDupa = state
+    while _G.FarmDupa do task.wait(0.1) collectItem("Dupa") end
+end)
+
+_G.FarmMenyan = false
+Section1:NewToggle("Auto Farm Menyan", "Teleport & ambil Menyan", function(state)
+    _G.FarmMenyan = state
+    while _G.FarmMenyan do task.wait(0.1) collectItem("Menyan") end
+end)
+
+_G.FarmKepiting = false
+Section1:NewToggle("Auto Farm Kepiting", "Teleport & ambil Kepiting", function(state)
+    _G.FarmKepiting = state
+    while _G.FarmKepiting do task.wait(0.1) collectItem("Kepiting") end
+end)
+
+local Tab2 = Window:NewTab("Farming & Plants")
+local Section2 = Tab2:NewSection("Otomatisasi Kebun")
+
+_G.AutoTanam = false
+Section2:NewToggle("Auto Tanam Benih", "Otomatis menanam benih di petak tanah", function(state)
+    _G.AutoTanam = state
+    while _G.AutoTanam do
+        task.wait(0.2)
+        pcall(function()
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v:IsA("ProximityPrompt") and (v.Parent.Name:lower():find("plot") or v.Parent.Name:lower():find("tanah")) then
+                    if v.ActionText:lower():find("tanam") or v.ActionText:lower():find("plant") then
+                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Parent.CFrame
+                        task.wait(0.05)
+                        fireproximityprompt(v)
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+_G.AutoSiram = false
+Section2:NewToggle("Auto Siram Benih", "Otomatis menyiram tanaman", function(state)
+    _G.AutoSiram = state
+    while _G.AutoSiram do
+        task.wait(0.2)
+        pcall(function()
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v:IsA("ProximityPrompt") and (v.ActionText:lower():find("siram") or v.ActionText:lower():find("water")) then
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Parent.CFrame
+                    task.wait(0.05)
+                    fireproximityprompt(v)
+                end
+            end
+        end)
+    end
+end)
+
+local Tab3 = Window:NewTab("Cooking Kitchen")
+local Section3 = Tab3:NewSection("Otomatisasi Kompor")
+
+_G.AutoMasak = false
+Section3:NewToggle("Auto Masak & Masak Instan", "Interaksi kompor + bypass durasi masak", function(state)
+    _G.AutoMasak = state
+    
+    -- Loop Interaksi Kompor
+    task.spawn(function()
+        while _G.AutoMasak do
+            task.wait(0.3)
+            pcall(function()
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("ProximityPrompt") and (v.Parent.Name:lower():find("kompor") or v.Parent.Name:lower():find("stove") or v.ActionText:lower():find("masak")) then
+                        fireproximityprompt(v)
+                    end
+                end
+            end)
+        end
+    end)
+    
+    -- Loop Bypass Remote Event (Masak Instan)
+    task.spawn(function()
+        while _G.AutoMasak do
+            task.wait(0.1)
+            pcall(function()
+                for _, remote in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
+                    if remote:IsA("RemoteEvent") and (remote.Name:lower():find("cook") or remote.Name:lower():find("masak") or remote.Name:lower():find("finish")) then
+                        remote:FireServer(true)
+                    end
+                end
+            end)
+        end
+    end)
+end)
+
+local Tab4 = Window:NewTab("Crow Hunter")
+local Section4 = Tab4:NewSection("Gagak Fitur")
+
+_G.AutoGagak = false
+Section4:NewToggle("FULL AUTO POTONG GAGAK", "Teleport & potong mandiri tanpa sentuh layar", function(state)
+    _G.AutoGagak = state
+    task.spawn(function()
+        while _G.AutoGagak do
+            task.wait(0.1)
+            local gagakDitemukan = false
+            pcall(function()
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if not _G.AutoGagak then break end
+                    if v:IsA("ProximityPrompt") then
+                        local name = v.Parent.Name:lower()
+                        local act = v.ActionText:lower()
+                        if name:find("gagak") or name:find("crow") or act:find("potong") or act:find("harvest") then
+                            gagakDitemukan = true
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Parent.CFrame
+                            task.wait(0.05)
+                            v.HoldDuration = 0
+                            fireproximityprompt(v)
+                            task.wait(0.1)
+                        end
+                    end
+                end
+            end)
+            if not gagakDitemukan then task.wait(0.5) end
+        end
+    end)
+end)
+
+local Tab5 = Window:NewTab("Utilities")
+local Section5 = Tab5:NewSection("Sistem Pengaman")
+
+Section5:NewButton("Aktifkan Anti-AFK (Anti-Kick)", "Mencegah putus koneksi setelah 20 menit idle", function()
+    local vu = game:GetService("VirtualUser")
+    game.Players.LocalPlayer.Idled:Connect(function()
+        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    end)
+    Library:Notify("Anti-AFK Aktif!", "Anda tidak akan terkena kick dari server.", 5)
+end)
